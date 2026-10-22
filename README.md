@@ -25,8 +25,11 @@ pass the shared conformance fixtures before release.
 ## TypeScript
 
 ```bash
-bun add --dev @unbroker/iac
+bun add --dev github:unbroker-app/iac#v0.1.0
 ```
+
+The npm publication of `@unbroker/iac` will replace the GitHub install command
+once npm trusted publishing is configured for the organization.
 
 Create `.unbroker/unbroker.ts`:
 
