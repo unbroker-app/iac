@@ -1,0 +1,41 @@
+{
+  "name": "@unbroker/iac",
+  "version": "0.1.0",
+  "description": "Open-source Infrastructure as Code authoring SDK for Unbroker Cloud",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "src/index.ts",
+    "src/schema.ts",
+    "src/types.ts",
+    "schema",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./schema/desired-state.schema.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:schema": "tsx scripts/generate-schema.ts",
+    "check:schema": "tsx scripts/generate-schema.ts --check",
+    "check-types": "tsc --noEmit",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepublishOnly": "bun run check-types && bun run test && bun run check:schema"
+  },
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "prettier": "^3.8.4",
+    "tsx": "^4.19.2",
+    "typescript": "5.9.2",
+    "zod-to-json-schema": "^3.24.6"
+  }
+}
