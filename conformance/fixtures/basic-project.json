@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "project": {
+    "name": "acme",
+    "env": {},
+    "services": [
+      {
+        "key": "postgres",
+        "name": "postgres",
+        "source": {
+          "type": "image",
+          "ref": "postgres:17",
+          "public": false
+        },
+        "build": null,
+        "preDeploy": null,
+        "start": null,
+        "outputDir": null,
+        "port": 5432,
+        "healthcheck": null,
+        "replicas": 1,
+        "cpuLimit": null,
+        "memoryLimit": null,
+        "autoDeploy": true,
+        "waitForCi": false,
+        "prPreviews": false,
+        "volume": {
+          "path": "/var/lib/postgresql/data",
+          "sizeGb": 20
+        },
+        "env": {
+          "POSTGRES_PASSWORD": {
+            "$unbroker": "preserve"
+          }
+        },
+        "domains": []
+      },
+      {
+        "key": "api",
+        "name": "api",
+        "source": {
+          "type": "repository",
+          "url": "https://github.com/acme/platform",
+          "branch": "main",
+          "framework": "node",
+          "rootDir": "apps/api"
+        },
+        "build": "bun run build",
+        "preDeploy": null,
+        "start": "bun run start",
+        "outputDir": null,
+        "port": 3000,
+        "healthcheck": "/health",
+        "replicas": 2,
+        "cpuLimit": null,
+        "memoryLimit": null,
+        "autoDeploy": true,
+        "waitForCi": false,
+        "prPreviews": false,
+        "volume": null,
+        "env": {
+          "DATABASE_HOST": "${{services.postgres.host}}"
+        },
+        "domains": ["api.example.com"]
+      }
+    ]
+  }
+}
