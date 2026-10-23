@@ -76,8 +76,9 @@ ubctl config apply <projectId> --plan <planId> --yes
 ## Go
 
 ```bash
-go get github.com/unbroker-app/iac@v0.2.0
 ubctl config init --lang go
+cd .unbroker
+go mod tidy
 ```
 
 The generated `.unbroker/go.mod` pins the SDK, and `.unbroker/unbroker.go`
