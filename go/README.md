@@ -1,7 +1,14 @@
-# Go SDK
+# Unbroker IaC Go SDK
 
-The Go authoring SDK will live in this directory and must emit documents that
-match the fixtures under [`conformance/fixtures`](../conformance/fixtures).
+```bash
+go get github.com/unbroker-app/iac@v0.2.0
+```
 
-Until the Go module is released, use the TypeScript SDK or produce a validated
-desired-state JSON document from your own tooling.
+Import the authoring package:
+
+```go
+import iac "github.com/unbroker-app/iac/go"
+```
+
+Go authoring programs receive evaluation context on stdin and emit the canonical
+desired-state JSON on stdout through `iac.Run(configuration)`.

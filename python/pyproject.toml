@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unbroker-iac"
+version = "0.2.0"
+description = "Infrastructure as Code authoring SDK for Unbroker Cloud"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Unbroker" }]
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,7 +1,9 @@
-# Python SDK
+# Unbroker IaC Python SDK
 
-The Python authoring SDK will live in this directory and must emit documents
-that match the fixtures under [`conformance/fixtures`](../conformance/fixtures).
+```bash
+python3 -m pip install \
+  "unbroker-iac @ git+https://github.com/unbroker-app/iac.git@v0.2.0#subdirectory=python"
+```
 
-Until the Python package is released, use the TypeScript SDK or produce a
-validated desired-state JSON document from your own tooling.
+Authoring programs receive evaluation context on stdin and emit the canonical
+desired-state JSON on stdout through `run(configuration)`.

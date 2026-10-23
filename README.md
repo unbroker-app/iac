@@ -15,17 +15,17 @@ src/                         TypeScript SDK (`@unbroker/iac`)
 schema/                      Generated language-neutral JSON Schema
 conformance/fixtures/        Expected output shared by every language
 examples/typescript/         TypeScript examples
-go/                          Future Go SDK
-python/                      Future Python SDK
+go/                          Go SDK (`github.com/unbroker-app/iac/go`)
+python/                      Python SDK (`unbroker-iac`)
 ```
 
-Go, Python and future implementations belong in this same repository and must
-pass the shared conformance fixtures before release.
+Every implementation passes the same conformance fixtures before release. The
+CLI evaluator contract is documented in [`PROTOCOL.md`](./PROTOCOL.md).
 
 ## TypeScript
 
 ```bash
-bun add --dev github:unbroker-app/iac#v0.1.0
+bun add --dev github:unbroker-app/iac#v0.2.0
 ```
 
 The npm publication of `@unbroker/iac` will replace the GitHub install command
@@ -72,6 +72,31 @@ Then use the CLI:
 ubctl config plan <projectId>
 ubctl config apply <projectId> --plan <planId> --yes
 ```
+
+## Go
+
+```bash
+go get github.com/unbroker-app/iac@v0.2.0
+ubctl config init --lang go
+```
+
+The generated `.unbroker/go.mod` pins the SDK, and `.unbroker/unbroker.go`
+emits desired state through `iac.Run`.
+
+See [`examples/go`](./examples/go).
+
+## Python
+
+```bash
+python3 -m pip install \
+  "unbroker-iac @ git+https://github.com/unbroker-app/iac.git@v0.2.0#subdirectory=python"
+ubctl config init --lang python
+```
+
+Python authoring files call `run(configuration)` and use idiomatic snake_case
+arguments and `ctx.is_environment()`.
+
+See [`examples/python`](./examples/python).
 
 ## Contract and conformance
 
