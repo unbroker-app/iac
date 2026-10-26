@@ -89,6 +89,7 @@ export const desiredServiceSchema = z
       repositorySourceSchema,
       imageSourceSchema,
     ]),
+    private: z.boolean().optional(),
     build: commandSchema.nullable().default(null),
     preDeploy: commandSchema.nullable().default(null),
     start: commandSchema.nullable().default(null),
@@ -133,6 +134,16 @@ export const desiredServiceSchema = z
   })
   .strict()
   .superRefine((service, ctx) => {
+    if (
+      service.private !== undefined &&
+      service.source.type === "repository" &&
+      service.source.framework === "worker"
+    )
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["private"],
+        message: "Workers don't listen, so they can't be marked private",
+      });
     if (service.source.type === "image") {
       for (const field of ["build", "preDeploy", "outputDir"] as const)
         if (service[field] != null)
@@ -157,6 +168,11 @@ export const desiredServiceSchema = z
         path: ["source", framework ? "dockerfilePath" : "framework"],
         message: "Choose exactly one build recipe: framework or dockerfilePath",
       });
+  })
+  .transform((service) => {
+    if (service.source.type === "image" && service.private !== undefined)
+      service.source.public = !service.private;
+    return service;
   });
 
 export const desiredStateSchema = z

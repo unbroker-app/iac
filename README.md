@@ -25,7 +25,7 @@ CLI evaluator contract is documented in [`PROTOCOL.md`](./PROTOCOL.md).
 ## TypeScript
 
 ```bash
-bun add --dev github:unbroker-app/iac#v0.2.0
+bun add --dev github:unbroker-app/iac#v0.3.0
 ```
 
 The npm publication of `@unbroker/iac` will replace the GitHub install command
@@ -90,7 +90,7 @@ See [`examples/go`](./examples/go).
 
 ```bash
 python3 -m pip install \
-  "unbroker-iac @ git+https://github.com/unbroker-app/iac.git@v0.2.0#subdirectory=python"
+  "unbroker-iac @ git+https://github.com/unbroker-app/iac.git@v0.3.0#subdirectory=python"
 ubctl config init --lang python
 ```
 
@@ -100,6 +100,30 @@ arguments and `ctx.is_environment()`.
 See [`examples/python`](./examples/python).
 
 ## Contract and conformance
+
+### Private services
+
+Set `private: true` on a service to disable public routing while keeping its
+internal host available to other services. Use `.host` and `.port` references for
+internal connections, not `.url`.
+
+```ts
+const backend = service("backend", {
+  source: repository("https://github.com/acme/backend", { framework: "node" }),
+  private: true,
+  port: 3000,
+});
+```
+
+Python uses `private=True`; Go uses `Private: iac.Bool(true)`. Set the value to
+`false` to enable public routing. For images, an explicit service-level `private`
+setting takes precedence over `image(..., { public: ... })` and its equivalents.
+When omitted, repository services remain public and images retain their existing
+`public` setting (private by default). Workers do not listen on a port and reject
+either explicit `private` setting.
+
+Changing exposure updates routing in place; it does not replace the service or
+require a build. Private routing is not a per-service network isolation policy.
 
 [`schema/desired-state.schema.json`](./schema/desired-state.schema.json) is the
 portable contract consumed by non-TypeScript implementations. It is generated

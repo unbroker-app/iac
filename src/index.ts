@@ -151,6 +151,7 @@ function compile(definition: ProjectDefinition): DesiredState {
         key: resource.key,
         name: resource.name,
         source: config.source,
+        ...(config.private !== undefined ? { private: config.private } : {}),
         build: config.build ?? null,
         preDeploy: config.preDeploy ?? null,
         start: config.start ?? null,

@@ -100,6 +100,7 @@ func (v *VolumeResource) Mount(path string) *VolumeMount {
 type ServiceConfig struct {
 	Name        string
 	Source      Source
+	Private     *bool
 	Build       string
 	PreDeploy   string
 	Start       string
@@ -179,6 +180,7 @@ type DesiredService struct {
 	Key         string         `json:"key"`
 	Name        string         `json:"name"`
 	Source      Source         `json:"source"`
+	Private     *bool          `json:"private,omitempty"`
 	Build       *string        `json:"build"`
 	PreDeploy   *string        `json:"preDeploy"`
 	Start       *string        `json:"start"`
@@ -303,7 +305,16 @@ func (c Configuration) Evaluate(ctx Context) (DesiredState, error) {
 			domains = []string{}
 		}
 		sort.Strings(domains)
-		services = append(services, DesiredService{Key: service.Key, Name: service.Name, Source: config.Source, Build: optionalString(config.Build), PreDeploy: optionalString(config.PreDeploy), Start: optionalString(config.Start), OutputDir: optionalString(config.OutputDir), Port: port, Healthcheck: optionalString(config.Healthcheck), Replicas: replicas, CPULimit: optionalInt(config.CPULimit), MemoryLimit: optionalInt(config.MemoryLimit), AutoDeploy: autoDeploy, WaitForCI: config.WaitForCI, PRPreviews: config.PRPreviews, Volume: volume, Env: nonNilMap(config.Env), Domains: domains})
+		source := config.Source
+		if config.Private != nil {
+			if source.Type == "repository" && source.Framework == "worker" {
+				return DesiredState{}, errors.New("workers don't listen, so they can't be marked private")
+			}
+			if source.Type == "image" {
+				source.Public = Bool(!*config.Private)
+			}
+		}
+		services = append(services, DesiredService{Key: service.Key, Name: service.Name, Source: source, Private: config.Private, Build: optionalString(config.Build), PreDeploy: optionalString(config.PreDeploy), Start: optionalString(config.Start), OutputDir: optionalString(config.OutputDir), Port: port, Healthcheck: optionalString(config.Healthcheck), Replicas: replicas, CPULimit: optionalInt(config.CPULimit), MemoryLimit: optionalInt(config.MemoryLimit), AutoDeploy: autoDeploy, WaitForCI: config.WaitForCI, PRPreviews: config.PRPreviews, Volume: volume, Env: nonNilMap(config.Env), Domains: domains})
 	}
 	for key, resource := range seen {
 		if _, ok := resource.(*VolumeResource); ok && mounts[key] != 1 {

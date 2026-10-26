@@ -32,3 +32,39 @@ func TestBasicProjectConformance(t *testing.T) {
 		t.Fatalf("conformance mismatch\nactual: %s\nexpected: %s", actualBytes, expectedNormalized)
 	}
 }
+
+func TestPrivateExposure(t *testing.T) {
+	for _, private := range []*bool{nil, Bool(true), Bool(false)} {
+		config := DefineUnbroker(func(Context) ProjectDefinition {
+			return Project("acme", ProjectConfig{Resources: []Resource{
+				Service("api", ServiceConfig{Source: Repository("https://github.com/acme/api", RepositoryConfig{Framework: "node"}), Private: private}),
+				Service("image", ServiceConfig{Source: Image("nginx:alpine"), Private: private}),
+			}})
+		})
+		state, err := config.Evaluate(Context{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, service := range state.Project.Services {
+			if service.Private != private {
+				t.Fatal("private setting was not preserved")
+			}
+			if service.Source.Type == "image" && *service.Source.Public != (private != nil && !*private) {
+				t.Fatal("image public routing must be the inverse of private")
+			}
+		}
+	}
+}
+
+func TestWorkerRejectsPrivate(t *testing.T) {
+	for _, private := range []bool{true, false} {
+		config := DefineUnbroker(func(Context) ProjectDefinition {
+			return Project("acme", ProjectConfig{Resources: []Resource{
+				Service("worker", ServiceConfig{Source: Repository("https://github.com/acme/worker", RepositoryConfig{Framework: "worker"}), Private: Bool(private)}),
+			}})
+		})
+		if _, err := config.Evaluate(Context{}); err == nil {
+			t.Fatal("workers must reject private")
+		}
+	}
+}
