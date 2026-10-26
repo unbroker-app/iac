@@ -197,6 +197,16 @@ def _compile(definition: ProjectDefinition) -> Dict[str, Any]:
             raise ValueError(f"service {resource.key!r} needs a source")
         if source_type == "repository":
             source.setdefault("branch", "main")
+        exposure = {}
+        if "private" in config:
+            private = config["private"]
+            if not isinstance(private, bool):
+                raise ValueError("private must be a boolean")
+            if source_type == "repository" and source.get("framework") == "worker":
+                raise ValueError("Workers don't listen, so they can't be marked private")
+            exposure["private"] = private
+            if source_type == "image":
+                source["public"] = not private
         port = int(config.get("port", 3000))
         replicas = int(config.get("replicas", 1))
         env = dict(config.get("env", {}))
@@ -220,6 +230,7 @@ def _compile(definition: ProjectDefinition) -> Dict[str, Any]:
                 "key": resource.key,
                 "name": resource.name,
                 "source": source,
+                **exposure,
                 "build": _nullable(config.get("build")),
                 "preDeploy": _nullable(config.get("pre_deploy")),
                 "start": _nullable(config.get("start")),

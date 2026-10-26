@@ -1,7 +1,7 @@
 # Unbroker IaC Go SDK
 
 ```bash
-go get github.com/unbroker-app/iac@v0.2.0
+go get github.com/unbroker-app/iac@v0.3.0
 ```
 
 Import the authoring package:

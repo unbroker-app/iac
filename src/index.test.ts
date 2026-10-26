@@ -59,6 +59,73 @@ test("fromEnv fails closed when a required value is absent", () => {
   assert.throws(() => fromEnv("TOKEN", {}), /Missing required/);
 });
 
+test("private exposure is optional and controls image public routing", () => {
+  for (const isPrivate of [undefined, true, false]) {
+    const config = defineUnbroker(() =>
+      project("Acme", {
+        resources: [
+          service("api", {
+            source: repository("https://github.com/acme/api", {
+              framework: "node",
+            }),
+            private: isPrivate,
+          }),
+          service("image", {
+            source: image("nginx:alpine"),
+            private: isPrivate,
+          }),
+        ],
+      }),
+    );
+    const [api, container] = config.evaluate(context).project.services;
+    assert.equal(api?.private, isPrivate);
+    assert.equal(container?.private, isPrivate);
+    assert.equal(
+      container?.source.type === "image" && container.source.public,
+      isPrivate === false,
+    );
+    assert.equal(Object.hasOwn(api!, "private"), isPrivate !== undefined);
+  }
+});
+
+test("worker services reject either explicit private setting", () => {
+  for (const isPrivate of [true, false]) {
+    const config = defineUnbroker(() =>
+      project("Acme", {
+        resources: [
+          service("worker", {
+            source: repository("https://github.com/acme/worker", {
+              framework: "worker",
+            }),
+            private: isPrivate,
+          }),
+        ],
+      }),
+    );
+    assert.throws(() => config.evaluate(context), /Workers don't listen/);
+  }
+});
+
+test("desired state rejects non-boolean private settings", () => {
+  assert.equal(
+    desiredStateSchema.safeParse({
+      version: 1,
+      project: {
+        name: "Acme",
+        services: [
+          {
+            key: "api",
+            name: "api",
+            source: { type: "image", ref: "nginx:alpine" },
+            private: "true",
+          },
+        ],
+      },
+    }).success,
+    false,
+  );
+});
+
 test("service env references reject invalid keys and are not thenables", () => {
   const api = service("api", {
     source: repository("https://github.com/acme/api", { framework: "node" }),

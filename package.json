@@ -1,6 +1,6 @@
 {
   "name": "@unbroker/iac",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Open-source Infrastructure as Code authoring SDK for Unbroker Cloud",
   "license": "MIT",
   "type": "module",

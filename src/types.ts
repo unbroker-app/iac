@@ -56,6 +56,8 @@ export interface VolumeMount {
 export interface ServiceConfig {
   name?: string;
   source: ServiceSource;
+  /** Disable public routing; the service remains reachable on its internal host. */
+  private?: boolean;
   build?: string;
   preDeploy?: string;
   start?: string;
@@ -98,6 +100,7 @@ export interface DesiredService {
   key: string;
   name: string;
   source: ServiceSource;
+  private?: boolean;
   build: string | null;
   preDeploy: string | null;
   start: string | null;
